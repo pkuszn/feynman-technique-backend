@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "feynman_technique_backend": {
+    "feynman-technique-backend": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
