@@ -4,11 +4,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FeynmanTechniqueBackend.Models
 {
     [Table("word")]
-    public class Word
+    public class Word : IEntity<int>
     {
         [Key]
         [Column("id")]
-        public int IdWord { get; set; }
+        public int Id { get; set; }
         [Required]
         [Column("word")]
         public string Name { get; set; }
@@ -22,5 +22,10 @@ namespace FeynmanTechniqueBackend.Models
         public string? Context { get; set; }
         [Column("link")]
         public string? Link { get; set; }
+
+        public void ClearKey()
+        {
+            Id = 0;
+        }
     }
 }

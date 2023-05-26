@@ -4,11 +4,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FeynmanTechniqueBackend.Models
 {
     [Table("user")]
-    public class User
+    public class User : IEntity<int>
     {
         [Key]
         [Column("id")]
-        public int IdUser { get; set; }
+        public int Id { get; set; }
         [Required]
         [Column("role")]
         public int Role { get; set; }
@@ -21,5 +21,10 @@ namespace FeynmanTechniqueBackend.Models
         [Required]
         [Column("created_date")]
         public DateTime CreatedDate { get; set; }
+
+        public void ClearKey()
+        {
+            Id = 0;
+        }
     }
 }

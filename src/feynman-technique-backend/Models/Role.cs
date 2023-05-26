@@ -4,13 +4,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace FeynmanTechniqueBackend.Models
 {
     [Table("role")]
-    public class Role
+    public class Role : IEntity<int>
     {
         [Key]
         [Column("id")]
-        public int IdRole { get; set; }
+        public int Id { get; set; }
         [Required]
         [Column("name")]
-        public string Name { get; set; } 
+        public string Name { get; set; }
     }
 }

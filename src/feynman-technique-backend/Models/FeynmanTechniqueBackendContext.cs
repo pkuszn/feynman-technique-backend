@@ -1,3 +1,4 @@
+using EntityFramework.Exceptions.MySQL.Pomelo;
 using Microsoft.EntityFrameworkCore;
 
 namespace FeynmanTechniqueBackend.Models
@@ -20,7 +21,8 @@ namespace FeynmanTechniqueBackend.Models
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             string connectionString = Configuration.GetConnectionString("FtBackendDatabase");
-            optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+            optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+                .UseExceptionProcessor();
         }
     }
 }
