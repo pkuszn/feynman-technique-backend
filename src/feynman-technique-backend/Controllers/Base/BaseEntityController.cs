@@ -207,4 +207,3 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         protected abstract Expression<Func<E, bool>> PreparePredicate(C criteria);
     }
 }
-

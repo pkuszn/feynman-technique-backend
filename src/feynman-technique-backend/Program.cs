@@ -1,15 +1,14 @@
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+using FeynmanTechniqueBackend.Extensions;
 
-// Add services to the container.
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args)
+    .AddDatabases();
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 WebApplication app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
