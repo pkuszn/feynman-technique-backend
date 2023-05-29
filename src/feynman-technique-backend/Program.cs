@@ -1,6 +1,7 @@
 using FeynmanTechniqueBackend.Extensions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args)
+    .AddServices()
     .AddDatabases();
 
 builder.Services.AddControllers();

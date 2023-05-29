@@ -24,7 +24,6 @@ namespace FeynmanTechniqueBackend.Controllers
 		{
 			return await ServiceUtilitiesService.GetAsync();
 		}
-
     }
 }
 
