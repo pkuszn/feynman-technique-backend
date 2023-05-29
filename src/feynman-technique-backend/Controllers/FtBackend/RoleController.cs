@@ -22,6 +22,7 @@ namespace FeynmanTechniqueBackend.Controllers
         {
             if (criteria is null)
             {
+                Logger.LogError("Get {entity} failed. {criteria} is null or empty.", nameof(Role), nameof(RoleCriteria));
                 return null;
             }
 

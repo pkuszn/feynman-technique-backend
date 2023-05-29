@@ -16,14 +16,14 @@ namespace FeynmanTechniqueBackend.Services
             FeynmanTechniqueBackendContext = feynmanTechniqueBackendContext ?? throw new ArgumentNullException(nameof(feynmanTechniqueBackendContext));
         }
 
-        public async Task<bool> GetAsync()
+        public async Task<bool> GetAsync(CancellationToken cancellationToken)
         {
-            return await ExecuteStoredProcedureAsync();
+            return await ExecuteStoredProcedureAsync(cancellationToken);
         }
 
-        private async Task<bool> ExecuteStoredProcedureAsync()
+        private async Task<bool> ExecuteStoredProcedureAsync(CancellationToken cancellationToken)
         {
-            return await FeynmanTechniqueBackendContext.Database.ExecuteSqlInterpolatedAsync($"call `remove_duplicates`") > 0;
+            return await FeynmanTechniqueBackendContext.Database.ExecuteSqlInterpolatedAsync($"call `remove_duplicates`", cancellationToken: cancellationToken) > 0;
         }
     }
 }

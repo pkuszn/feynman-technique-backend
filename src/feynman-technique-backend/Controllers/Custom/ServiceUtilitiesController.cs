@@ -20,9 +20,9 @@ namespace FeynmanTechniqueBackend.Controllers
         [ProducesResponseType((int)HttpStatusCode.NotFound, Type = typeof(object))]
         [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(string))]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(object))]
-		public async Task<bool> GetAsync()
+		public async Task<bool> GetAsync(CancellationToken cancellationToken)
 		{
-			return await ServiceUtilitiesService.GetAsync();
+			return await ServiceUtilitiesService.GetAsync(cancellationToken);
 		}
     }
 }

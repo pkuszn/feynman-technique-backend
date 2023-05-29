@@ -1,3 +1,5 @@
+using FeynmanTechniqueBackend.HttpModels;
+using FeynmanTechniqueBackend.HttpModels.Interfaces;
 using FeynmanTechniqueBackend.Models;
 using FeynmanTechniqueBackend.Services;
 using FeynmanTechniqueBackend.Services.Interfaces;
@@ -19,7 +21,9 @@ namespace FeynmanTechniqueBackend.Extensions
         {
             _ = builder ?? throw new ArgumentNullException(nameof(builder));
             
-            builder.Services.AddScoped<IServiceUtilitiesService, ServiceUtilitiesService>();
+            builder.Services.AddScoped<IServiceUtilitiesService, ServiceUtilitiesService>()
+                .AddScoped<IScrapService, ScrapService>()
+                .AddScoped<IHttpFeynmanTechniqueScraper, HttpFeynmanTechniqueScraper>();
 
             return builder;
         }
