@@ -14,6 +14,7 @@
             "args": [],
             "cwd": "${workspaceFolder}/src/feynman-technique-backend",
             "stopAtEntry": false,
+            "console": "externalTerminal",
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {
                 "action": "openExternally",
@@ -21,15 +22,19 @@
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
-            },
-            "sourceFileMap": {
-                "/Views": "${workspaceFolder}/Views"
             }
         },
         {
-            "name": ".NET Core Attach",
-            "type": "coreclr",
-            "request": "attach"
+            "name": "web",
+            "type": "msedge",
+            "request": "launch",
+            "url": "https://localhost:7162/swagger/index.html"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "ft-backend",
+            "configurations": [".NET Core Launch (web)", "web"]
         }
     ]
 }

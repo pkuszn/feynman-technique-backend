@@ -3,9 +3,12 @@ using FeynmanTechniqueBackend.Controllers.Base;
 using FeynmanTechniqueBackend.Controllers.Criteria;
 using FeynmanTechniqueBackend.Extensions;
 using FeynmanTechniqueBackend.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FeynmanTechniqueBackend.Controllers
 {
+    [ApiController]
+    [Route("[controller]")]
     public class RoleController : BaseEntityReadOnlyController<Role, RoleCriteria, int>
     {
         private readonly ILogger<RoleController> Logger;
@@ -19,6 +22,7 @@ namespace FeynmanTechniqueBackend.Controllers
         {
             if (criteria is null)
             {
+                Logger.LogError("Get {entity} failed. {criteria} is null or empty.", nameof(Role), nameof(RoleCriteria));
                 return null;
             }
 

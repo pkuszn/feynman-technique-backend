@@ -11,7 +11,7 @@ namespace FeynmanTechniqueBackend.Controllers
     [Route("[controller]")]
     public class UserController : BaseEntityController<User, UserCriteria, int>
     {
-        private ILogger<UserController> Logger;
+        private readonly ILogger<UserController> Logger;
         public UserController(ILogger<UserController> logger, FeynmanTechniqueBackendContext feynmanTechniqueBackendContext) 
             : base(feynmanTechniqueBackendContext)
         {
@@ -22,6 +22,7 @@ namespace FeynmanTechniqueBackend.Controllers
         {
             if (criteria is null)
             {
+                Logger.LogError("Get {entity} failed. {criteria} is null or empty.", nameof(User), nameof(UserCriteria));
                 return null;
             }
 

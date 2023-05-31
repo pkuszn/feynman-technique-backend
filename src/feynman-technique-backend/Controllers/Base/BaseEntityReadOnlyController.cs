@@ -17,7 +17,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<E>>> GetAsync([FromBody] C criteria)
+        public async Task<ActionResult<List<E>>> GetAsync([FromBody] C criteria, CancellationToken cancellationToken)
         {
             try
             {
@@ -27,7 +27,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
                 }
 
                 Expression<Func<E, bool>> expression = PreparePredicate(criteria);
-                return await FeynmanTechniqueBackendContext.Set<E>().Where(expression).ToListAsync();
+                return await FeynmanTechniqueBackendContext.Set<E>().Where(expression).ToListAsync(cancellationToken: cancellationToken);
             }
             catch (MySqlException exception)
             {
@@ -36,7 +36,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         }
 
         [HttpPost("get")]
-        public async Task<ActionResult<List<E>>> GetByPostAsync([FromBody] C criteria)
+        public async Task<ActionResult<List<E>>> GetByPostAsync([FromBody] C criteria, CancellationToken cancellationToken)
         {
             try
             {
@@ -46,7 +46,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
                 }
 
                 Expression<Func<E, bool>> expression = PreparePredicate(criteria);
-                return await FeynmanTechniqueBackendContext.Set<E>().Where(expression).ToListAsync();
+                return await FeynmanTechniqueBackendContext.Set<E>().Where(expression).ToListAsync(cancellationToken: cancellationToken);
             }
             catch (MySqlException exception)
             {
@@ -55,11 +55,11 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         }
 
         [HttpGet("all")]
-        public async Task<ActionResult<List<E>>> GetAllAsync()
+        public async Task<ActionResult<List<E>>> GetAllAsync(CancellationToken cancellationToken)
         {
             try
             {
-                return await FeynmanTechniqueBackendContext.Set<E>().ToListAsync();
+                return await FeynmanTechniqueBackendContext.Set<E>().ToListAsync(cancellationToken: cancellationToken);
             }
             catch (MySqlException exception)
             {
@@ -68,11 +68,11 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<E>> GetByIdAsync(T id)
+        public async Task<ActionResult<E>> GetByIdAsync(T id, CancellationToken cancellationToken)
         {
             try
             {
-                E? entity = await FeynmanTechniqueBackendContext.Set<E>().FirstOrDefaultAsync(f => f.Id.Equals(id));
+                E? entity = await FeynmanTechniqueBackendContext.Set<E>().FirstOrDefaultAsync(f => f.Id.Equals(id), cancellationToken: cancellationToken);
                 return entity == null ? StatusCode(StatusCodes.Status404NotFound) : entity;
             }
             catch (MySqlException exception)
