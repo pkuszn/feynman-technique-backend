@@ -7,13 +7,13 @@ namespace FeynmanTechniqueBackend.Services
     public class ServiceUtilitiesService : IServiceUtilitiesService
     {
         private readonly ILogger<ServiceUtilitiesService> Logger;
-        private readonly FeynmanTechniqueBackendContext FeynmanTechniqueBackendContext;
+        private readonly FeynmanTechniqueBackendContext DbContext;
 
 
-        public ServiceUtilitiesService(ILogger<ServiceUtilitiesService> logger, FeynmanTechniqueBackendContext feynmanTechniqueBackendContext)
+        public ServiceUtilitiesService(ILogger<ServiceUtilitiesService> logger, FeynmanTechniqueBackendContext dbContext)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            FeynmanTechniqueBackendContext = feynmanTechniqueBackendContext ?? throw new ArgumentNullException(nameof(feynmanTechniqueBackendContext));
+            DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
         public async Task<bool> GetAsync(CancellationToken cancellationToken)
@@ -23,7 +23,7 @@ namespace FeynmanTechniqueBackend.Services
 
         private async Task<bool> ExecuteStoredProcedureAsync(CancellationToken cancellationToken)
         {
-            return await FeynmanTechniqueBackendContext.Database.ExecuteSqlInterpolatedAsync($"call `remove_duplicates`", cancellationToken: cancellationToken) > 0;
+            return await DbContext.Database.ExecuteSqlInterpolatedAsync($"call `remove_duplicates`", cancellationToken: cancellationToken) > 0;
         }
     }
 }

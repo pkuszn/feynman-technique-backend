@@ -15,7 +15,7 @@ namespace FeynmanTechniqueBackend.Controllers
         [HttpPost("/many")]
         public async Task<ScrapDto> PostAsync(ScrapCriteria criteria, CancellationToken cancellationToken)
         {
-            return await ScrapService.GetAsync(criteria, cancellationToken);
+            return await ScrapService.PostAsync(criteria, cancellationToken);
         }
     }
 }

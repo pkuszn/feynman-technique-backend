@@ -2,5 +2,5 @@ using FeynmanTechniqueBackend.DtoModels;
 
 namespace FeynmanTechniqueBackend.Services.Interfaces
 {
-    public interface IScrapService : IGetService<ScrapCriteria, ScrapDto> { }
+    public interface IScrapService : IPostService<ScrapCriteria, ScrapDto> { }
 }

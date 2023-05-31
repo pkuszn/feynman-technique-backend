@@ -4,6 +4,7 @@ using FeynmanTechniqueBackend.Models;
 using FeynmanTechniqueBackend.Controllers.Criteria;
 using Microsoft.AspNetCore.Mvc;
 using FeynmanTechniqueBackend.Extensions;
+using FeynmanTechniqueBackend.Repository.Interfaces;
 
 namespace FeynmanTechniqueBackend.Controllers
 {
@@ -12,8 +13,8 @@ namespace FeynmanTechniqueBackend.Controllers
     public class PartOfSpeechController : BaseEntityReadOnlyController<PartOfSpeech, PartOfSpeechCriteria, int>
     {
         private readonly ILogger<PartOfSpeechController> Logger;
-        public PartOfSpeechController(ILogger<PartOfSpeechController> logger, FeynmanTechniqueBackendContext feynmanTechniqueBackendContext)
-            : base(feynmanTechniqueBackendContext)
+        public PartOfSpeechController(ILogger<PartOfSpeechController> logger, IRepositoryAsync<PartOfSpeech, int> repository)
+            : base(repository)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

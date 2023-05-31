@@ -3,6 +3,7 @@ using FeynmanTechniqueBackend.Controllers.Base;
 using FeynmanTechniqueBackend.Controllers.Criteria;
 using FeynmanTechniqueBackend.Extensions;
 using FeynmanTechniqueBackend.Models;
+using FeynmanTechniqueBackend.Repository.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FeynmanTechniqueBackend.Controllers
@@ -12,8 +13,8 @@ namespace FeynmanTechniqueBackend.Controllers
     public class UserController : BaseEntityController<User, UserCriteria, int>
     {
         private readonly ILogger<UserController> Logger;
-        public UserController(ILogger<UserController> logger, FeynmanTechniqueBackendContext feynmanTechniqueBackendContext) 
-            : base(feynmanTechniqueBackendContext)
+        public UserController(ILogger<UserController> logger, IRepositoryAsync<User, int> repository) 
+            : base(repository)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

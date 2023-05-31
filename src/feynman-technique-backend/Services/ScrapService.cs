@@ -1,7 +1,11 @@
+using FeynmanTechniqueBackend.Constants;
 using FeynmanTechniqueBackend.DtoModels;
+using FeynmanTechniqueBackend.Extensions;
 using FeynmanTechniqueBackend.HttpModels.Interfaces;
 using FeynmanTechniqueBackend.Models;
 using FeynmanTechniqueBackend.Services.Interfaces;
+using FluentValidation;
+using Microsoft.EntityFrameworkCore.Storage;
 using RestSharp;
 using static FeynmanTechniqueBackend.Constants.Addresses;
 
@@ -10,29 +14,67 @@ namespace FeynmanTechniqueBackend.Services
     public class ScrapService : IScrapService
     {
         private readonly ILogger<ScrapService> Logger;
-        private readonly FeynmanTechniqueBackendContext FeynmanTechniqueBackendContext;
-        private readonly IHttpFeynmanTechniqueScraper HttpFeynmanTechniqueScraper;
+        private readonly FeynmanTechniqueBackendContext DbContext;
+        private readonly IHttpFeynmanTechniqueScraper HttpScraperContext;
+        private readonly IValidator<ScrapCriteria> Validator;
 
         public ScrapService(
-            ILogger<ScrapService> logger, 
-            FeynmanTechniqueBackendContext feynmanTechniqueBackendContext,
-            IHttpFeynmanTechniqueScraper httpFeynmanTechniqueScraper)
+            ILogger<ScrapService> logger,
+            FeynmanTechniqueBackendContext dbContext,
+            IHttpFeynmanTechniqueScraper httpScraperContext,
+            IValidator<ScrapCriteria> validator)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            FeynmanTechniqueBackendContext = feynmanTechniqueBackendContext ?? throw new ArgumentNullException(nameof(feynmanTechniqueBackendContext));    
-            HttpFeynmanTechniqueScraper = httpFeynmanTechniqueScraper ?? throw new ArgumentNullException(nameof(httpFeynmanTechniqueScraper));
+            DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            HttpScraperContext = httpScraperContext ?? throw new ArgumentNullException(nameof(httpScraperContext));
+            Validator = validator ?? throw new ArgumentNullException(nameof(validator));
         }
 
-        public async Task<ScrapDto> GetAsync(ScrapCriteria c, CancellationToken cancellationToken)
+        public async Task<ScrapDto> PostAsync(ScrapCriteria criteria, CancellationToken cancellationToken)
         {
-            //TODO: VALIDATION
-            ///TODO: Dokończyć
+            FluentValidation.Results.ValidationResult validatorResult = await Validator.ValidateAsync(criteria, cancellationToken);
+            if (!validatorResult.IsValid)
+            {
+                Logger.LogError("Get {entity} failed. {criteria} is null or empty.", nameof(ScrapDto), nameof(ScrapCriteria));
+                return new ScrapDto();
+            }
 
-            string request = HttpFeynmanTechniqueScraper.MakeAddress(FeynmanTechniqueScraperUrl.Many);
             RestClient client = new();
-            RestRequest restRequest = new(request);
+            Uri uri = HttpScraperContext.PrepareAddress(FeynmanTechniqueScraperUrl.Many);
+            RestRequest? restRequest = HttpScraperContext.PrepareRequest(uri, Method.Post, criteria.Links);
+            if (restRequest == null)
+            {
+                Logger.LogError("Creating {request} failed. {request} is null or empty.", nameof(RestRequest));
+                return new ScrapDto();
+            }
+
             RestResponse response = await client.GetAsync(restRequest, cancellationToken);
             return new();
+        }
+
+        private async Task<bool> BulkInsertWordsTransaction(HashSet<string> words)
+        {
+            IDbContextTransaction dbContextTransaction = DbContext.Database.BeginTransaction();
+            bool succeeded = false;
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCritical(ex.GetFullMessage());
+            }
+            finally
+            {
+                if (succeeded)
+                {
+                    dbContextTransaction.Commit();
+                }
+                else
+                {
+                    dbContextTransaction.Rollback();
+                }
+            }
         }
     }
 }

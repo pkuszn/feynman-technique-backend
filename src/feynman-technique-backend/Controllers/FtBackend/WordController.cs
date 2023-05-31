@@ -3,6 +3,7 @@ using FeynmanTechniqueBackend.Controllers.Base;
 using FeynmanTechniqueBackend.Controllers.Criteria;
 using FeynmanTechniqueBackend.Extensions;
 using FeynmanTechniqueBackend.Models;
+using FeynmanTechniqueBackend.Repository.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FeynmanTechniqueBackend.Controllers
@@ -12,8 +13,8 @@ namespace FeynmanTechniqueBackend.Controllers
     public class WordController : BaseEntityController<Word, WordCriteria, int>
     {
         private readonly ILogger<WordController> Logger;
-        public WordController(ILogger<WordController> logger, FeynmanTechniqueBackendContext feynmanTechniqueBackendContext) 
-            : base(feynmanTechniqueBackendContext)
+        public WordController(ILogger<WordController> logger, IRepositoryAsync<Word, int> repository)
+            : base(repository)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

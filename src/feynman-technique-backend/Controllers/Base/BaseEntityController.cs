@@ -1,18 +1,17 @@
 using System.Linq.Expressions;
-using FeynmanTechniqueBackend.Models;
+using FeynmanTechniqueBackend.Repository.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
 
 namespace FeynmanTechniqueBackend.Controllers.Base
 {
     public abstract class BaseEntityController<E, C, T> : ControllerBase
-        where E: class, IEntity<T>, new()
+        where E : class, IEntity<T>, new()
     {
-        public FeynmanTechniqueBackendContext FeynmanTechniqueBackendContext { get; }
-        protected BaseEntityController(FeynmanTechniqueBackendContext feynmanTechniqueBackendContext)
+        public IRepositoryAsync<E, T> Repository { get; }
+        protected BaseEntityController(IRepositoryAsync<E, T> repository)
         {
-            FeynmanTechniqueBackendContext = feynmanTechniqueBackendContext ?? throw new ArgumentNullException(nameof(feynmanTechniqueBackendContext));
+            Repository = Repository ?? throw new ArgumentNullException(nameof(Repository));
         }
 
         [HttpGet]
@@ -26,7 +25,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
                 }
 
                 Expression<Func<E, bool>> expression = PreparePredicate(criteria);
-                return await FeynmanTechniqueBackendContext.Set<E>().Where(expression).ToListAsync(cancellationToken: cancellationToken);
+                return await Repository.GetAsync(expression, cancellationToken);
             }
             catch (MySqlException exception)
             {
@@ -45,7 +44,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
                 }
 
                 Expression<Func<E, bool>> expression = PreparePredicate(criteria);
-                return await FeynmanTechniqueBackendContext.Set<E>().Where(expression).ToListAsync(cancellationToken: cancellationToken);
+                return await Repository.GetAsync(expression, cancellationToken);
             }
             catch (MySqlException exception)
             {
@@ -58,7 +57,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         {
             try
             {
-                return await FeynmanTechniqueBackendContext.Set<E>().ToListAsync(cancellationToken: cancellationToken);
+                return await Repository.GetAllAsync(cancellationToken);
             }
             catch (MySqlException exception)
             {
@@ -71,7 +70,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         {
             try
             {
-                E? entity = await FeynmanTechniqueBackendContext.Set<E>().FirstOrDefaultAsync(f => f.Id.Equals(id), cancellationToken: cancellationToken);
+                E? entity = await Repository.GetByIdAsync(id, cancellationToken);
                 return entity == null ? StatusCode(StatusCodes.Status404NotFound) : entity;
             }
             catch (MySqlException exception)
@@ -90,9 +89,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
                     return BadRequest();
                 }
 
-                FeynmanTechniqueBackendContext.Set<E>().Add(entity);
-                await FeynmanTechniqueBackendContext.SaveChangesAsync(cancellationToken);
-                return entity;
+                return await Repository.PostAsync(entity, cancellationToken);
             }
             catch (MySqlException exception)
             {
@@ -110,15 +107,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
                     return BadRequest();
                 }
 
-                E? foundEntity = await FeynmanTechniqueBackendContext.Set<E>().FirstOrDefaultAsync(f => f.Id.Equals(entity.Id), cancellationToken: cancellationToken);
-                if (foundEntity == null)
-                {
-                    return NotFound();
-                }
-
-                foundEntity = entity;
-                await FeynmanTechniqueBackendContext.SaveChangesAsync(cancellationToken);
-                return foundEntity;
+                return await Repository.PutAsync(entity, cancellationToken);
             }
             catch (MySqlException exception)
             {
@@ -131,15 +120,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         {
             try
             {
-                E? entity = await FeynmanTechniqueBackendContext.Set<E>().FirstOrDefaultAsync(f => f.Id.Equals(id), cancellationToken: cancellationToken);
-                if (entity == null)
-                {
-                    return NotFound();
-                }
-
-                FeynmanTechniqueBackendContext.Set<E>().Remove(entity);
-                await FeynmanTechniqueBackendContext.SaveChangesAsync(cancellationToken);
-                return true;
+                return await Repository.DeleteAsync(id, cancellationToken);
             }
             catch (MySqlException exception)
             {
@@ -157,14 +138,12 @@ namespace FeynmanTechniqueBackend.Controllers.Base
                     return new List<E>();
                 }
 
-                FeynmanTechniqueBackendContext.BulkInsert(entities);
-                await FeynmanTechniqueBackendContext.SaveChangesAsync(cancellationToken);
-                return new List<E>(entities);
-            }  
-            catch(MySqlException exception)
+                return await Repository.BulkInsertAsync(entities, cancellationToken);
+            }
+            catch (MySqlException exception)
             {
                 return HandleError(exception);
-            } 
+            }
         }
 
         protected StatusCodeResult HandleError(MySqlException exception)
