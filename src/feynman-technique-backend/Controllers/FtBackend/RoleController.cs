@@ -13,7 +13,7 @@ namespace FeynmanTechniqueBackend.Controllers
     public class RoleController : BaseEntityReadOnlyController<Role, RoleCriteria, int>
     {
         private readonly ILogger<RoleController> Logger;
-        public RoleController(ILogger<RoleController> logger, IRepositoryAsync<Role, int> repository) 
+        public RoleController(ILogger<RoleController> logger, IRepositoryAsync repository) 
             : base(repository)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));

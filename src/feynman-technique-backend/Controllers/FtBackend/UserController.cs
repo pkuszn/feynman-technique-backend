@@ -13,7 +13,7 @@ namespace FeynmanTechniqueBackend.Controllers
     public class UserController : BaseEntityController<User, UserCriteria, int>
     {
         private readonly ILogger<UserController> Logger;
-        public UserController(ILogger<UserController> logger, IRepositoryAsync<User, int> repository) 
+        public UserController(ILogger<UserController> logger, IRepositoryAsync repository) 
             : base(repository)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));

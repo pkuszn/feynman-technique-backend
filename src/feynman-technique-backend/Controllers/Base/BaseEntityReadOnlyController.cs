@@ -8,9 +8,9 @@ namespace FeynmanTechniqueBackend.Controllers.Base
     public abstract class BaseEntityReadOnlyController<E, C, T> : ControllerBase
         where E : class, IEntity<T>, new()
     {
-        private readonly IRepositoryAsync<E, T> Repository;
+        private readonly IRepositoryAsync Repository;
 
-        protected BaseEntityReadOnlyController(IRepositoryAsync<E, T> repository)
+        protected BaseEntityReadOnlyController(IRepositoryAsync repository)
         {
             Repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
@@ -58,7 +58,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         {
             try
             {
-                return await Repository.GetAllAsync(cancellationToken: cancellationToken);
+                return await Repository.GetAllAsync<E>(cancellationToken: cancellationToken);
             }
             catch (MySqlException exception)
             {
@@ -71,7 +71,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         {
             try
             {
-                E? entity = await Repository.GetByIdAsync(id, cancellationToken);
+                E? entity = await Repository.GetByIdAsync<E, T>(id, cancellationToken);
                 return entity == null ? StatusCode(StatusCodes.Status404NotFound) : entity;
             }
             catch (MySqlException exception)

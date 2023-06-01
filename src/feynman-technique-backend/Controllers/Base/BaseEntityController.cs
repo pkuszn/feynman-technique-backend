@@ -8,8 +8,8 @@ namespace FeynmanTechniqueBackend.Controllers.Base
     public abstract class BaseEntityController<E, C, T> : ControllerBase
         where E : class, IEntity<T>, new()
     {
-        public IRepositoryAsync<E, T> Repository { get; }
-        protected BaseEntityController(IRepositoryAsync<E, T> repository)
+        public IRepositoryAsync Repository { get; }
+        protected BaseEntityController(IRepositoryAsync repository)
         {
             Repository = Repository ?? throw new ArgumentNullException(nameof(Repository));
         }
@@ -57,7 +57,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         {
             try
             {
-                return await Repository.GetAllAsync(cancellationToken);
+                return await Repository.GetAllAsync<E>(cancellationToken);
             }
             catch (MySqlException exception)
             {
@@ -70,7 +70,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         {
             try
             {
-                E? entity = await Repository.GetByIdAsync(id, cancellationToken);
+                E? entity = await Repository.GetByIdAsync<E, T>(id, cancellationToken);
                 return entity == null ? StatusCode(StatusCodes.Status404NotFound) : entity;
             }
             catch (MySqlException exception)
@@ -107,7 +107,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
                     return BadRequest();
                 }
 
-                return await Repository.PutAsync(entity, cancellationToken);
+                return await Repository.PutAsync<E, T>(entity, cancellationToken);
             }
             catch (MySqlException exception)
             {
@@ -120,7 +120,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         {
             try
             {
-                return await Repository.DeleteAsync(id, cancellationToken);
+                return await Repository.DeleteAsync<E, T>(id, cancellationToken);
             }
             catch (MySqlException exception)
             {

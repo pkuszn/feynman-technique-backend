@@ -13,7 +13,7 @@ namespace FeynmanTechniqueBackend.Controllers
     public class PartOfSpeechController : BaseEntityReadOnlyController<PartOfSpeech, PartOfSpeechCriteria, int>
     {
         private readonly ILogger<PartOfSpeechController> Logger;
-        public PartOfSpeechController(ILogger<PartOfSpeechController> logger, IRepositoryAsync<PartOfSpeech, int> repository)
+        public PartOfSpeechController(ILogger<PartOfSpeechController> logger, IRepositoryAsync repository)
             : base(repository)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));

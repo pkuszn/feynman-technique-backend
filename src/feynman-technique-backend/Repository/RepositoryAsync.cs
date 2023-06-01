@@ -1,13 +1,12 @@
 ﻿using FeynmanTechniqueBackend.Models;
 using FeynmanTechniqueBackend.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using System.Linq.Expressions;
 
 namespace FeynmanTechniqueBackend.Repository
 {
-    public class RepositoryAsync<E, T>
-        : IRepositoryAsync<E, T> where E
-            : class, IEntity<T>
+    public class RepositoryAsync : IRepositoryAsync
     {
         private readonly FeynmanTechniqueBackendContext DbContext;
         public RepositoryAsync(FeynmanTechniqueBackendContext dbContext)
@@ -15,30 +14,35 @@ namespace FeynmanTechniqueBackend.Repository
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<List<E>> GetAsync(Expression<Func<E, bool>> expression, CancellationToken cancellationToken)
+        public async Task<List<E>> GetAsync<E>(Expression<Func<E, bool>> expression, CancellationToken cancellationToken)
+            where E : class
         {
             return await DbContext.Set<E>().Where(expression).ToListAsync(cancellationToken: cancellationToken);
         }
 
-        public async Task<List<E>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<List<E>> GetAllAsync<E>(CancellationToken cancellationToken)
+            where E : class
         {
             return await DbContext.Set<E>().ToListAsync(cancellationToken: cancellationToken);
         }
 
-        public async Task<E> GetByIdAsync(T id, CancellationToken cancellationToken)
+        public async Task<E> GetByIdAsync<E, T>(T id, CancellationToken cancellationToken)
+            where E : class, IEntity<T>
         {
             E? entity = await DbContext.Set<E>().FirstOrDefaultAsync(f => f.Id.Equals(id), cancellationToken: cancellationToken);
             return entity;
         }
 
-        public async Task<E> PostAsync(E entity, CancellationToken cancellationToken)
+        public async Task<E> PostAsync<E>(E entity, CancellationToken cancellationToken)
+            where E : class
         {
             DbContext.Set<E>().Add(entity);
             await DbContext.SaveChangesAsync(cancellationToken);
             return entity;
         }
 
-        public async Task<E> PutAsync(E entity, CancellationToken cancellationToken)
+        public async Task<E> PutAsync<E, T>(E entity, CancellationToken cancellationToken)
+            where E : class, IEntity<T>
         {
             E? foundEntity = await DbContext.Set<E>().FirstOrDefaultAsync(f => f.Id.Equals(entity.Id), cancellationToken: cancellationToken);
             if (foundEntity == null)
@@ -51,7 +55,8 @@ namespace FeynmanTechniqueBackend.Repository
             return foundEntity;
         }
 
-        public async Task<bool> DeleteAsync(T id, CancellationToken cancellationToken)
+        public async Task<bool> DeleteAsync<E, T>(T id, CancellationToken cancellationToken)
+            where E : class, IEntity<T>
         {
             E? entity = await DbContext.Set<E>().FirstOrDefaultAsync(f => f.Id.Equals(id), cancellationToken: cancellationToken);
             if (entity == null)
@@ -64,11 +69,17 @@ namespace FeynmanTechniqueBackend.Repository
             return true;
         }
 
-        public async Task<List<E>> BulkInsertAsync(IEnumerable<E> entities, CancellationToken cancellationToken)
+        public async Task<List<E>> BulkInsertAsync<E>(IEnumerable<E> entities, CancellationToken cancellationToken)
+            where E : class
         {
             DbContext.BulkInsert(entities);
             await DbContext.SaveChangesAsync(cancellationToken);
             return new List<E>(entities);
+        }
+
+        public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken)
+        {
+            return await DbContext.Database.BeginTransactionAsync(cancellationToken);
         }
     }
 }

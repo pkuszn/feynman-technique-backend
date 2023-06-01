@@ -1,9 +1,14 @@
+using FeynmanTechniqueBackend.Configuration;
 using FeynmanTechniqueBackend.Extensions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args)
     .AddServices()
     .AddDatabases()
     .AddValidators();
+
+
+builder.Services.Configure<FeynmanTechniqueScraperOptions>(
+    builder.Configuration.GetSection(FeynmanTechniqueScraperOptions.FeynmanTechniqueScraperConfiguration));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

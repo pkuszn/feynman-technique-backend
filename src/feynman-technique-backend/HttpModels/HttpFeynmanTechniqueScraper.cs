@@ -1,3 +1,4 @@
+using FeynmanTechniqueBackend.Configuration;
 using FeynmanTechniqueBackend.HttpModels.Interfaces;
 using Microsoft.Extensions.Options;
 using RestSharp;
@@ -6,11 +7,9 @@ namespace FeynmanTechniqueBackend.HttpModels
 {
     public class HttpFeynmanTechniqueScraper : IHttpFeynmanTechniqueScraper
     {
-        private readonly FeynmanTechniqueScraperConfiguration ScraperConfiguration;
-        private const string Format = "{Url}/{endpoint}";
-        private const int Timeout = 30;
-        public HttpFeynmanTechniqueScraper(IOptionsMonitor<FeynmanTechniqueScraperConfiguration> scraperConfiguration)
-        {   
+        private readonly FeynmanTechniqueScraperOptions ScraperConfiguration;
+        public HttpFeynmanTechniqueScraper(IOptionsMonitor<FeynmanTechniqueScraperOptions> scraperConfiguration)
+        {
             ScraperConfiguration = scraperConfiguration.CurrentValue ?? throw new ArgumentNullException(nameof(scraperConfiguration));
         }
 
@@ -21,7 +20,7 @@ namespace FeynmanTechniqueBackend.HttpModels
                 return new Uri(string.Empty);
             }
 
-            return new Uri(string.Format(Format, ScraperConfiguration.Url, endpoint));
+            return new Uri($"{ScraperConfiguration.Url}/{endpoint}");
         }
 
         public RestRequest? PrepareRequest(Uri uri, Method method, object? body = null)
@@ -31,10 +30,7 @@ namespace FeynmanTechniqueBackend.HttpModels
                 return null;
             }
 
-            RestRequest request = new(uri, method)
-            {
-                Timeout = Timeout
-            };
+            RestRequest request = new(uri, method);
 
             if (body != null)
             {

@@ -13,7 +13,7 @@ namespace FeynmanTechniqueBackend.Controllers
     public class WordController : BaseEntityController<Word, WordCriteria, int>
     {
         private readonly ILogger<WordController> Logger;
-        public WordController(ILogger<WordController> logger, IRepositoryAsync<Word, int> repository)
+        public WordController(ILogger<WordController> logger, IRepositoryAsync repository)
             : base(repository)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));

@@ -17,8 +17,8 @@ namespace FeynmanTechniqueBackend.Extensions
             _ = builder ?? throw new ArgumentNullException(nameof(builder));
 
             builder.Services.AddDbContext<FeynmanTechniqueBackendContext>()
-                //TODO: dokoñczyc
-                .AddScoped(typeof(IRepositoryAsync<>), typeof(RepositoryAsync));
+                .AddScoped<IRepositoryAsync, RepositoryAsync>();
+
             return builder;
         }
 
