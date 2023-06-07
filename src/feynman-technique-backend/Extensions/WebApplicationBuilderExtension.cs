@@ -27,8 +27,9 @@ namespace FeynmanTechniqueBackend.Extensions
             _ = builder ?? throw new ArgumentNullException(nameof(builder));
 
             builder.Services.AddScoped<IServiceUtilitiesService, ServiceUtilitiesService>()
-                .AddScoped<IScrapService, ScrapService>()
-                .AddScoped<IHttpFeynmanTechniqueScraper, HttpFeynmanTechniqueScraper>();
+                .AddScoped<ILinguisticCorpusFillmentService, LinguisticCorpusFillmentService>()
+                .AddScoped<IHttpFeynmanTechniqueScraper, HttpFeynmanTechniqueScraper>()
+                .AddScoped<IHttpFeynmanTechniqueCore, HttpFeynmanTechniqueCore>();
 
             return builder;
         }

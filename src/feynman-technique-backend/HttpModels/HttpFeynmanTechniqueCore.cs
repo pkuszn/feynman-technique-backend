@@ -1,13 +1,14 @@
 using FeynmanTechniqueBackend.Configuration;
 using FeynmanTechniqueBackend.HttpModels.Interfaces;
 using Microsoft.Extensions.Options;
+using RestSharp;
 
 namespace FeynmanTechniqueBackend.HttpModels
 {
-    public class HttpFeynmanTechniqueScraper : HttpClient, IHttpFeynmanTechniqueScraper
+    public class HttpFeynmanTechniqueCore : HttpClient, IHttpFeynmanTechniqueCore
     {
-        private readonly FeynmanTechniqueScraperOptions Options;
-        public HttpFeynmanTechniqueScraper(IOptionsMonitor<FeynmanTechniqueScraperOptions> options) : base()
+        private readonly FeynmanTechniqueCoreOptions Options;
+        public HttpFeynmanTechniqueCore(IOptionsMonitor<FeynmanTechniqueCoreOptions> options) : base()
         {
             Options = options.CurrentValue ?? throw new ArgumentNullException(nameof(options));
         }
@@ -23,4 +24,3 @@ namespace FeynmanTechniqueBackend.HttpModels
         }
     }
 }
-
