@@ -1,3 +1,4 @@
+using FeynmanTechniqueBackend.Configuration;
 using FeynmanTechniqueBackend.HttpModels;
 using FeynmanTechniqueBackend.HttpModels.Interfaces;
 using FeynmanTechniqueBackend.Models;
@@ -39,6 +40,19 @@ namespace FeynmanTechniqueBackend.Extensions
             _ = builder ?? throw new ArgumentNullException(nameof(builder));
 
             builder.Services.AddScoped<IValidator<ScrapCriteria>, ScrapValidator>();
+
+            return builder;
+        }
+
+        public static WebApplicationBuilder AddConfiguration(this WebApplicationBuilder builder)
+        {
+            _ = builder ?? throw new ArgumentNullException(nameof(builder));
+
+            builder.Services.Configure<FeynmanTechniqueScraperOptions>(
+                builder.Configuration.GetSection(FeynmanTechniqueScraperOptions.FeynmanTechniqueScraperConfiguration));
+
+            builder.Services.Configure<FeynmanTechniqueCoreOptions>(
+                builder.Configuration.GetSection(FeynmanTechniqueCoreOptions.FeynmanTechniqueCoreConfiguration));
 
             return builder;
         }

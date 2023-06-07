@@ -1,7 +1,6 @@
 using FeynmanTechniqueBackend.Configuration;
 using FeynmanTechniqueBackend.HttpModels.Interfaces;
 using Microsoft.Extensions.Options;
-using RestSharp;
 
 namespace FeynmanTechniqueBackend.HttpModels
 {
