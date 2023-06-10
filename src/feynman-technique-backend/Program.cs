@@ -2,7 +2,10 @@ using FeynmanTechniqueBackend.Extensions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args)
     .AddServices()
-    .AddDatabases();
+    .AddDatabases()
+    .AddValidators()
+    .AddConfiguration();
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

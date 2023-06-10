@@ -4,7 +4,12 @@ namespace FeynmanTechniqueBackend.Constants
     {
         public class FeynmanTechniqueScraperUrl
         {
-            public const string Many = "many";
+            public const string Many = "scrap/many";
+
+        }
+        public class FeynmanTechniqueCoreUrl
+        {
+            public const string AnalyzeSpeeches = "analyze/speeches";
         }
     }
 }
