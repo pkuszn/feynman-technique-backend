@@ -9,10 +9,10 @@ namespace FeynmanTechniqueBackend.Controllers
     [Route("[controller]")]
     public class LinguisticCorpusFillmentController : ControllerBase
     {
-        private readonly ILinguisticCorpusFillmentService ScrapService;
+        private readonly ILinguisticCorpusFillmentService LinguisticCorpusFillmentService;
         public LinguisticCorpusFillmentController(ILinguisticCorpusFillmentService scrapService)
         {
-            ScrapService = scrapService ?? throw new ArgumentNullException(nameof(scrapService));
+            LinguisticCorpusFillmentService = scrapService ?? throw new ArgumentNullException(nameof(scrapService));
         }
 
         [HttpPost]
@@ -21,7 +21,7 @@ namespace FeynmanTechniqueBackend.Controllers
         [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(object))]
         public async Task<List<Word>> PostAsync(ScrapCriteria criteria, CancellationToken cancellationToken)
         {
-            return await ScrapService.PostAsync(criteria, cancellationToken);
+            return await LinguisticCorpusFillmentService.PostAsync(criteria, cancellationToken);
         }
     }
 }
