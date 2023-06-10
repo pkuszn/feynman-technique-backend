@@ -1,9 +1,9 @@
 namespace FeynmanTechniqueBackend.HttpModels.Models
 {
-    public class Words
+    public class WordDto
     {
         public string? Source { get; set; }
-        public HashSet<string>? WordList { get; set; }
+        public List<string>? Words { get; set; }
     }
 }
 

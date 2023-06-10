@@ -1,4 +1,3 @@
-using FeynmanTechniqueBackend.DtoModels;
 using FeynmanTechniqueBackend.Extensions;
 using FeynmanTechniqueBackend.HttpModels.Interfaces;
 using FeynmanTechniqueBackend.HttpModels.Models;
@@ -6,6 +5,7 @@ using FeynmanTechniqueBackend.Models;
 using FeynmanTechniqueBackend.Repository.Interfaces;
 using FeynmanTechniqueBackend.Services.Interfaces;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore.Storage;
 using RestSharp;
 using static FeynmanTechniqueBackend.Constants.Addresses;
@@ -14,12 +14,12 @@ namespace FeynmanTechniqueBackend.Services
 {
     public class LinguisticCorpusFillmentService : ILinguisticCorpusFillmentService
     {
+        private const string ErrorMessage = "Get {response} failed. {request} is null or empty.";
         private readonly ILogger<LinguisticCorpusFillmentService> Logger;
         private readonly IRepositoryAsync Repository;
         private readonly IHttpFeynmanTechniqueScraper HttpScraperContext;
         private readonly IHttpFeynmanTechniqueCore HttpCoreContext;
         private readonly IValidator<ScrapCriteria> Validator;
-        private Dictionary<int, string> IdToLinkDict { get; set; } = new();
 
         public LinguisticCorpusFillmentService(
             ILogger<LinguisticCorpusFillmentService> logger,
@@ -37,68 +37,65 @@ namespace FeynmanTechniqueBackend.Services
 
         public async Task<List<Word>> PostAsync(ScrapCriteria criteria, CancellationToken cancellationToken)
         {
-            FluentValidation.Results.ValidationResult validatorResult = await Validator.ValidateAsync(criteria, cancellationToken);
+            ValidationResult validatorResult = await Validator.ValidateAsync(criteria, cancellationToken);
             if (!validatorResult.IsValid)
             {
-                Logger.LogError("Get {entity} failed. {criteria} is null or empty.", nameof(ScrapDto), nameof(ScrapCriteria));
+                Logger.LogError(ErrorMessage, nameof(ScrapServiceDto), nameof(ScrapCriteria));
                 return new();
             }
 
-            List<Words> words = await ScrapFromResourceAsync(criteria, cancellationToken);
-            if ((words?.Count ?? 0) == 0)
+            List<WordDto> wordDtos = await ScrapFromResourceAsync(criteria, cancellationToken);
+            if ((wordDtos?.Count ?? 0) == 0)
             {
-                Logger.LogError("Get {entity} failed. {criteria} is null or empty.", nameof(Words), nameof(ScrapCriteria));
+                Logger.LogError(ErrorMessage, nameof(Word), nameof(ScrapCriteria));
                 return new();
             }
 
-            string[] links = words.Select(s => s.Source).Distinct().ToArray();
-            if (links.Length == 0)
+            List<DetailedWordResponse> detailedWords = await SpecifyPartOfSpeechAsync(wordDtos.Distinct().ToList(), cancellationToken);
+            if ((detailedWords?.Count ?? 0) == 0)
             {
-                Logger.LogError("Create links array failed. {source} is null or empty.", nameof(Words.Source));
+                Logger.LogError(ErrorMessage, nameof(DetailedWordResponse), nameof(WordDto));
                 return new();
             }
 
-            MapLinkToId(links);
-
-            List<InternalWord> internalWords = PrepareCorePayload(words);
-            if (internalWords.Count == 0)
+            List<Word> preparedWords = PrepareWords(detailedWords);
+            if ((preparedWords?.Count ?? 0) == 0)
             {
-                Logger.LogError("Get {entity} failed. {criteria} is null or empty.", nameof(InternalWord), nameof(Words));
+                Logger.LogError(ErrorMessage, nameof(Word), nameof(DetailedWordResponse));
                 return new();
             }
 
-            List<Word> preparedWords = PrepareWords(await SpecifyPartOfSpeechAsync(internalWords, cancellationToken) ?? new());
             await BulkInsertWordsTransaction(preparedWords, cancellationToken);
 
             return preparedWords;
         }
 
-        private async Task<List<DetailedWord>> SpecifyPartOfSpeechAsync(List<InternalWord> internalWords, CancellationToken cancellationToken)
+        private async Task<List<DetailedWordResponse>> SpecifyPartOfSpeechAsync(List<WordDto> wordDtos, CancellationToken cancellationToken)
         {
             RestClient client = new();
             Uri uri = HttpCoreContext.PrepareAddress(FeynmanTechniqueCoreUrl.AnalyzeSpeeches);
-            RestRequest? restRequest = HttpCoreContext.PrepareRequest(uri, Method.Post, internalWords);
+            RestRequest? restRequest = HttpCoreContext.PrepareRequest(uri, Method.Post, wordDtos);
             if (restRequest == null)
             {
-                Logger.LogError("Get {request} failed. {request} is null or empty.", nameof(Words), nameof(RestRequest));
-                return new List<DetailedWord>();
+                Logger.LogError(ErrorMessage, nameof(Word), nameof(RestRequest));
+                return new List<DetailedWordResponse>();
             }
 
-            return await client.PostAsync<List<DetailedWord>>(restRequest, cancellationToken) ?? new();
+            return await client.PostAsync<List<DetailedWordResponse>>(restRequest, cancellationToken) ?? new();
         }
 
-        private async Task<List<Words>> ScrapFromResourceAsync(ScrapCriteria criteria, CancellationToken cancellationToken)
+        private async Task<List<WordDto>> ScrapFromResourceAsync(ScrapCriteria criteria, CancellationToken cancellationToken)
         {
             RestClient client = new();
             Uri uri = HttpScraperContext.PrepareAddress(FeynmanTechniqueScraperUrl.Many);
             RestRequest? restRequest = HttpScraperContext.PrepareRequest(uri, Method.Post, criteria);
             if (restRequest == null)
             {
-                Logger.LogError("Get {request} failed. {request} is null or empty.", nameof(Words), nameof(RestRequest));
-                return new List<Words>();
+                Logger.LogError(ErrorMessage, nameof(Word), nameof(RestRequest));
+                return new List<WordDto>();
             }
 
-            return await client.PostAsync<List<Words>>(restRequest, cancellationToken) ?? new();
+            return await client.PostAsync<List<WordDto>>(restRequest, cancellationToken) ?? new();
         }
 
         private async Task BulkInsertWordsTransaction(List<Word> preparedWords, CancellationToken cancellationToken)
@@ -106,7 +103,7 @@ namespace FeynmanTechniqueBackend.Services
             IDbContextTransaction dbContextTransaction = await Repository.BeginTransactionAsync(cancellationToken);
             bool succeeded = false;
             try
-            {   
+            {
                 await Repository.BulkInsertAsync(preparedWords.AsEnumerable(), cancellationToken);
                 succeeded = true;
             }
@@ -127,48 +124,22 @@ namespace FeynmanTechniqueBackend.Services
             }
         }
 
-        private static List<Word> PrepareWords(List<DetailedWord> detailedWords)
+        private static List<Word> PrepareWords(List<DetailedWordResponse> detailedWords)
         {
-            if ((detailedWords?.Count ?? 0) == 0)
+            List<Word> words = new();
+            DateTime now = DateTime.UtcNow;
+            foreach (DetailedWordResponse detailedWord in detailedWords)
             {
-                return new();
-            }
-
-            DateTime dateTimeNow = DateTime.UtcNow;
-            return detailedWords.Select(s => new Word()
-            {
-                Id = 0,
-                Name = s.Lemma ?? string.Empty,
-                PartOfSpeech = !string.IsNullOrEmpty(s.PartOfSpeech) ? s.PartOfSpeech.MapPartOfSpeech() : 0,
-                CreatedDate = dateTimeNow,
-                Context = "scraper",
-                Link = "null"
-            }).ToList();
-        }
-
-        private List<InternalWord> PrepareCorePayload(List<Words> words)
-        {
-            List<InternalWord> internalWords = new();
-            foreach (Words word in words)
-            {
-                internalWords.Add(new InternalWord()
+                words.AddRange(detailedWord.Words.Select(s => new Word
                 {
-                    IdLink = IdToLinkDict.FirstOrDefault(f => f.Value == word.Source).Key,
-                    Words = word.WordList
-                });
+                    Name = s.Lemma ?? string.Empty,
+                    PartOfSpeech = !string.IsNullOrEmpty(s.PartOfSpeech) ? s.PartOfSpeech.MapPartOfSpeech() : 0,
+                    CreatedDate = now,
+                    Context = "scraper",
+                    Link = detailedWord.Source
+                }));
             }
-
-            return internalWords;
-        }
-
-        private void MapLinkToId(string[] links)
-        {
-            int i = 0;
-            foreach (string link in links)
-            {
-                IdToLinkDict[i] = link;
-                i++;
-            }
+            return words;
         }
     }
 }
