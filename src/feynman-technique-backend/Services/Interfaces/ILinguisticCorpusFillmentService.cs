@@ -1,3 +1,4 @@
+using FeynmanTechniqueBackend.Controllers.Criteria;
 using FeynmanTechniqueBackend.Models;
 
 namespace FeynmanTechniqueBackend.Services.Interfaces

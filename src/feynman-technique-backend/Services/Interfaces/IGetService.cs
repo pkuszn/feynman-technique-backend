@@ -9,6 +9,6 @@ namespace FeynmanTechniqueBackend.Services.Interfaces
         where TCriteria: ICriteria
         where TResponse: class
     {
-        public Task<TResponse> GetAsync(TCriteria c, CancellationToken cancellationToken);
+        public Task<TResponse> GetAsync(TCriteria criteria, CancellationToken cancellationToken);
     }
 }

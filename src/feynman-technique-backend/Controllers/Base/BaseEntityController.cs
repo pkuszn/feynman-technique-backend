@@ -11,7 +11,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         public IRepositoryAsync Repository { get; }
         protected BaseEntityController(IRepositoryAsync repository)
         {
-            Repository = Repository ?? throw new ArgumentNullException(nameof(Repository));
+            Repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
         [HttpGet]

@@ -9,7 +9,6 @@ namespace FeynmanTechniqueBackend.Controllers
     public class ServiceUtilitiesController : ControllerBase
     {
         private readonly IServiceUtilitiesService ServiceUtilitiesService;
-
         public ServiceUtilitiesController(IServiceUtilitiesService serviceUtilitiesService)
         {
             ServiceUtilitiesService = serviceUtilitiesService ?? throw new ArgumentNullException(nameof(serviceUtilitiesService));

@@ -9,7 +9,6 @@ namespace FeynmanTechniqueBackend.Services
         private readonly ILogger<ServiceUtilitiesService> Logger;
         private readonly FeynmanTechniqueBackendContext DbContext;
 
-
         public ServiceUtilitiesService(ILogger<ServiceUtilitiesService> logger, FeynmanTechniqueBackendContext dbContext)
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));

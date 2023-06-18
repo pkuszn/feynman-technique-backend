@@ -1,8 +1,10 @@
 using FeynmanTechniqueBackend.Services.Interfaces;
 
-namespace FeynmanTechniqueBackend;
-
-public class ScrapCriteria : ICriteria
+namespace FeynmanTechniqueBackend.Controllers.Criteria
 {
-    public HashSet<string> Links { get; set; }
+    public class ScrapCriteria : ICriteria
+    {
+        public HashSet<string> Links { get; set; }
+    }
 }
+

@@ -1,4 +1,5 @@
 using FeynmanTechniqueBackend.Configuration;
+using FeynmanTechniqueBackend.Controllers.Criteria;
 using FeynmanTechniqueBackend.HttpModels;
 using FeynmanTechniqueBackend.HttpModels.Interfaces;
 using FeynmanTechniqueBackend.Models;
@@ -30,7 +31,8 @@ namespace FeynmanTechniqueBackend.Extensions
             builder.Services.AddScoped<IServiceUtilitiesService, ServiceUtilitiesService>()
                 .AddScoped<ILinguisticCorpusFillmentService, LinguisticCorpusFillmentService>()
                 .AddScoped<IHttpFeynmanTechniqueScraper, HttpFeynmanTechniqueScraper>()
-                .AddScoped<IHttpFeynmanTechniqueCore, HttpFeynmanTechniqueCore>();
+                .AddScoped<IHttpFeynmanTechniqueCore, HttpFeynmanTechniqueCore>()
+                .AddScoped<IUserManagementService, UserManagementService>();
 
             return builder;
         }
@@ -39,7 +41,8 @@ namespace FeynmanTechniqueBackend.Extensions
         {
             _ = builder ?? throw new ArgumentNullException(nameof(builder));
 
-            builder.Services.AddScoped<IValidator<ScrapCriteria>, ScrapValidator>();
+            builder.Services.AddScoped<IValidator<ScrapCriteria>, ScrapValidator>()
+                .AddScoped<IValidator<ValidateUserCriteria>, ValidateUserValidator>();
 
             return builder;
         }

@@ -2,8 +2,7 @@
 {
     public interface IPostService<TCriteria, TResult>
         where TCriteria: ICriteria
-        where TResult : class
     {
-        Task<TResult> PostAsync(TCriteria c, CancellationToken cancellationToken);
+        Task<TResult> PostAsync(TCriteria criteria, CancellationToken cancellationToken);
     }
 }
