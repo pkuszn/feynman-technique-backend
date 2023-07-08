@@ -1,10 +1,12 @@
+using FeynmanTechniqueBackend.Constants;
 using FeynmanTechniqueBackend.Extensions;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args)
     .AddServices()
     .AddDatabases()
     .AddValidators()
-    .AddConfiguration();
+    .AddConfiguration()
+    .AddCors();
 
 
 builder.Services.AddControllers();
@@ -20,6 +22,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(Application.AllowSpecificOriginsName);
 
 app.UseAuthorization();
 

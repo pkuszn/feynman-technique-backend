@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using FeynmanTechniqueBackend.Controllers.Criteria;
+using FluentValidation;
 
 namespace FeynmanTechniqueBackend.Validators
 {
