@@ -1,4 +1,5 @@
 using FeynmanTechniqueBackend.Configuration;
+using FeynmanTechniqueBackend.Constants;
 using FeynmanTechniqueBackend.Controllers.Criteria;
 using FeynmanTechniqueBackend.HttpModels;
 using FeynmanTechniqueBackend.HttpModels.Interfaces;
@@ -56,6 +57,24 @@ namespace FeynmanTechniqueBackend.Extensions
 
             builder.Services.Configure<FeynmanTechniqueCoreOptions>(
                 builder.Configuration.GetSection(FeynmanTechniqueCoreOptions.FeynmanTechniqueCoreConfiguration));
+
+            return builder;
+        }
+
+        public static WebApplicationBuilder AddCors(this WebApplicationBuilder builder)
+        {
+            _ = builder ?? throw new ArgumentNullException(nameof(builder));
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: Application.AllowSpecificOriginsName, policy =>
+                {
+                    //TODO: Dev
+                    policy.WithOrigins(Application.ReactClientUrl)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
 
             return builder;
         }
