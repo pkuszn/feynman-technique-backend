@@ -67,12 +67,11 @@ namespace FeynmanTechniqueBackend.Extensions
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy(name: Application.AllowSpecificOriginsName, policy =>
+                options.AddDefaultPolicy(builder =>
                 {
-                    //TODO: Dev
-                    policy.WithOrigins(Application.ReactClientUrl)
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
+                    builder.AllowAnyOrigin() // You can restrict this to specific origins by using WithOrigins("http://localhost:3000")
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
                 });
             });
 

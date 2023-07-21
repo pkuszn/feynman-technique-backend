@@ -23,7 +23,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors(Application.AllowSpecificOriginsName);
+app.UseRouting();
+
+app.UseCors();
 
 app.UseAuthorization();
 
