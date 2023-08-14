@@ -14,7 +14,7 @@ namespace FeynmanTechniqueBackend.Repository
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<List<E>> GetAsync<E>(Expression<Func<E, bool>> expression, CancellationToken cancellationToken)
+        public async Task<List<E>> GetWhereAsync<E>(Expression<Func<E, bool>> expression, CancellationToken cancellationToken)
             where E : class
         {
             return await DbContext.Set<E>().Where(expression).ToListAsync(cancellationToken: cancellationToken);
@@ -80,6 +80,17 @@ namespace FeynmanTechniqueBackend.Repository
         public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken)
         {
             return await DbContext.Database.BeginTransactionAsync(cancellationToken);
+        }
+
+        public async Task<List<E>> GetWhereLimitAsync<E>(Expression<Func<E, bool>> expression, int offset, int partOfSet, CancellationToken cancellationToken) where E : class
+        {
+            int skip = partOfSet > 1 ? partOfSet * offset : 0;
+            return await DbContext
+                .Set<E>()
+                .Where(expression)
+                .Skip(skip)
+                .Take(offset)
+                .ToListAsync(cancellationToken: cancellationToken);
         }
     }
 }

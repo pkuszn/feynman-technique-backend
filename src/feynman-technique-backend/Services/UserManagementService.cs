@@ -31,7 +31,7 @@ namespace FeynmanTechniqueBackend.Services
                 return false;
             }
 
-            List<User> users = await Repository.GetAsync<User>(f => f.Name == criteria.Name, cancellationToken);
+            List<User> users = await Repository.GetWhereAsync<User>(f => f.Name == criteria.Name, cancellationToken);
             if ((users?.Count ?? 0) == 0)
             {
                 Logger.LogInformation("There is no user about given data: {login}", criteria.Name);

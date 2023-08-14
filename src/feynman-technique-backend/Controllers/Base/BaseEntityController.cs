@@ -25,7 +25,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
                 }
 
                 Expression<Func<E, bool>> expression = PreparePredicate(criteria);
-                return await Repository.GetAsync(expression, cancellationToken);
+                return await Repository.GetWhereAsync(expression, cancellationToken);
             }
             catch (MySqlException exception)
             {
@@ -44,7 +44,10 @@ namespace FeynmanTechniqueBackend.Controllers.Base
                 }
 
                 Expression<Func<E, bool>> expression = PreparePredicate(criteria);
-                return await Repository.GetAsync(expression, cancellationToken);
+                bool hasLengthLimit = HasLengthLimit(criteria, out int offset, out int partOfSet);
+                return hasLengthLimit 
+                    ? await Repository.GetWhereLimitAsync(expression, offset, partOfSet, cancellationToken) 
+                    : await Repository.GetWhereAsync(expression, cancellationToken);
             }
             catch (MySqlException exception)
             {
@@ -184,5 +187,6 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         }
 
         protected abstract Expression<Func<E, bool>> PreparePredicate(C criteria);
+        protected abstract bool HasLengthLimit(C criteria, out int offset, out int partOfSet);
     }
 }

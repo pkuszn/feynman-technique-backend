@@ -19,6 +19,13 @@ namespace FeynmanTechniqueBackend.Controllers
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        protected override bool HasLengthLimit(PartOfSpeechCriteria criteria, out int offset, out int partOfSet)
+        {
+            offset = 0;
+            partOfSet = 0;
+            return false;
+        }
+
         protected override Expression<Func<PartOfSpeech, bool>> PreparePredicate(PartOfSpeechCriteria criteria)
         {
             if (criteria is null)
