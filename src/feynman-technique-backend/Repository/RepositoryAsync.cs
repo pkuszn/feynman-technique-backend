@@ -92,5 +92,12 @@ namespace FeynmanTechniqueBackend.Repository
                 .Take(offset)
                 .ToListAsync(cancellationToken: cancellationToken);
         }
+
+        public async Task<int> GetAmountOfEntriesAsync<E>(CancellationToken cancellationToken) where E: class
+        {
+            return await DbContext
+                .Set<E>()
+                .CountAsync(cancellationToken: cancellationToken);
+        }
     }
 }

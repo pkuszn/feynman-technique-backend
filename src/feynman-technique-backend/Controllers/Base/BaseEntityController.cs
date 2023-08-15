@@ -186,6 +186,19 @@ namespace FeynmanTechniqueBackend.Controllers.Base
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetAmountOfEntriesAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                return await Repository.GetAmountOfEntriesAsync<E>(cancellationToken);
+            }
+            catch (MySqlException exception)
+            {
+                return HandleError(exception);
+            }
+        }
+
         protected abstract Expression<Func<E, bool>> PreparePredicate(C criteria);
         protected abstract bool HasLengthLimit(C criteria, out int offset, out int partOfSet);
     }

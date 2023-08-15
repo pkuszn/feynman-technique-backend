@@ -15,5 +15,6 @@ namespace FeynmanTechniqueBackend.Repository.Interfaces
         Task<bool> DeleteAsync<E, T>(T id, CancellationToken cancellationToken) where E : class, IEntity<T>;
         Task<List<E>> BulkInsertAsync<E>(IEnumerable<E> entities, CancellationToken cancellationToken) where E : class;
         Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken);
+        Task<int> GetAmountOfEntriesAsync<E>(CancellationToken cancellationToken) where E : class;
     }
 }

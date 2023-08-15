@@ -80,6 +80,19 @@ namespace FeynmanTechniqueBackend.Controllers.Base
             }
         }
 
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetAmountOfEntriesAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                return await Repository.GetAmountOfEntriesAsync<E>(cancellationToken);
+            }
+            catch (MySqlException exception)
+            {
+                return HandleError(exception);
+            }
+        }
+
         protected StatusCodeResult HandleError(MySqlException exception)
         {
             if (MySqlErrorCode.AccessDenied.Equals(exception.SqlState))
