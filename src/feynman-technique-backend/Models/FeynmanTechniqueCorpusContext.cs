@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FeynmanTechniqueBackend.Models
 {
-    public class FeynmanTechniqueBackendContext : DbContext
+    public class FeynmanTechniqueCorpusContext : DbContext
     {
         private readonly IConfiguration Configuration;
 
@@ -12,7 +12,7 @@ namespace FeynmanTechniqueBackend.Models
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
 
-        public FeynmanTechniqueBackendContext(DbContextOptions options, IConfiguration configuration) 
+        public FeynmanTechniqueCorpusContext(DbContextOptions options, IConfiguration configuration) 
             : base(options) 
         { 
             Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -20,7 +20,7 @@ namespace FeynmanTechniqueBackend.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string connectionString = Configuration.GetConnectionString("FtBackendDatabase");
+            string connectionString = Configuration.GetConnectionString("FtDb");
             optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
                 .UseExceptionProcessor();
         }

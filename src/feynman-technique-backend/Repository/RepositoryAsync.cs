@@ -8,8 +8,8 @@ namespace FeynmanTechniqueBackend.Repository
 {
     public class RepositoryAsync : IRepositoryAsync
     {
-        private readonly FeynmanTechniqueBackendContext DbContext;
-        public RepositoryAsync(FeynmanTechniqueBackendContext dbContext)
+        private readonly FeynmanTechniqueCorpusContext DbContext;
+        public RepositoryAsync(FeynmanTechniqueCorpusContext dbContext)
         {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
