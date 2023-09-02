@@ -25,11 +25,12 @@ services:
       dockerfile: Dockerfile
     depends_on:
     - ft-db
+    - feynman-technique-scraper
+    - feynman-technique-core
     ports:
     - "5200:80"
     - "5400:443"
     environment:
-      - DB_URL=mysql://
       - ASPNETCORE_ENVIRONMENT=Development
     networks:
       - ft-network
