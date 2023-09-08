@@ -1,5 +1,6 @@
 using FeynmanTechniqueBackend.Controllers.Criteria;
 using FeynmanTechniqueBackend.Extensions;
+using FeynmanTechniqueBackend.Helpers;
 using FeynmanTechniqueBackend.HttpModels.Interfaces;
 using FeynmanTechniqueBackend.HttpModels.Models;
 using FeynmanTechniqueBackend.Models;
@@ -105,7 +106,7 @@ namespace FeynmanTechniqueBackend.Services
             bool succeeded = false;
             try
             {
-                Logger.LogInformation(string.Join("\n", preparedWords.ToString()));
+                Logger.LogInformation(preparedWords.LogCollection());
                 await Repository.BulkInsertAsync(preparedWords.AsEnumerable(), cancellationToken);
                 succeeded = true;
             }

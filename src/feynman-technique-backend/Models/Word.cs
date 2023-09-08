@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -26,6 +27,11 @@ namespace FeynmanTechniqueBackend.Models
         public void ClearKey()
         {
             Id = 0;
+        }
+
+        public override string ToString()
+        {
+            return $"Word: {Id}, {Name}, {PartOfSpeech}, {CreatedDate}, {Context}, {Link}";
         }
     }
 }
