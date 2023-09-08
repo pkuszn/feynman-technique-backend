@@ -105,6 +105,7 @@ namespace FeynmanTechniqueBackend.Services
             bool succeeded = false;
             try
             {
+                Logger.LogInformation(string.Join("\n", preparedWords));
                 await Repository.BulkInsertAsync(preparedWords.AsEnumerable(), cancellationToken);
                 succeeded = true;
             }
