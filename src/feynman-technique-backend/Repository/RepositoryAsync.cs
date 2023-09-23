@@ -72,7 +72,7 @@ namespace FeynmanTechniqueBackend.Repository
         public async Task<List<E>> BulkInsertAsync<E>(IEnumerable<E> entities, CancellationToken cancellationToken)
             where E : class
         {
-            DbContext.BulkInsert(entities);
+            await DbContext.Set<E>().AddRangeAsync(entities, cancellationToken);
             await DbContext.SaveChangesAsync(cancellationToken);
             return new List<E>(entities);
         }
