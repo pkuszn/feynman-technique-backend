@@ -67,7 +67,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<E>> GetByIdAsync(T id, CancellationToken cancellationToken)
+        public async Task<ActionResult<E>> GetByIdAsync([FromRoute] T id, CancellationToken cancellationToken)
         {
             try
             {
@@ -88,6 +88,25 @@ namespace FeynmanTechniqueBackend.Controllers.Base
                 return await Repository.GetAmountOfEntriesAsync<E>(cancellationToken);
             }
             catch (MySqlException exception)
+            {
+                return HandleError(exception);
+            }
+        }
+
+        [HttpPost("{column}/get")]
+        public async Task<ActionResult<List<object>>> GetByColumnAsync([FromRoute] string column, CancellationToken cancellationToken)
+        {
+            try
+            {
+                Microsoft.EntityFrameworkCore.Metadata.IProperty? property = Repository.TryGetColumnName<E>(column);
+                if (property == null)
+                {
+                    return NotFound();
+                }
+
+                return await Repository.GetByColumnAsync<E>(property, cancellationToken);
+            }
+            catch(MySqlException exception)
             {
                 return HandleError(exception);
             }

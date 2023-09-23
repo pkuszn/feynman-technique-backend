@@ -1,8 +1,8 @@
-﻿namespace FeynmanTechniqueBackend.Helpers
+﻿namespace FeynmanTechniqueBackend.Extensions
 {
-    public static class LoggerHelper
+    public static class LoggerExtension
     {
-        private static string Null = "<null>";
+        private const string Null = "<null>";
         public static string LogCollection<T>(this List<T> collection)
             where T : class
         {

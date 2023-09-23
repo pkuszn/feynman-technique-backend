@@ -69,7 +69,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<E>> GetByIdAsync(T id, CancellationToken cancellationToken)
+        public async Task<ActionResult<E>> GetByIdAsync([FromRoute] T id, CancellationToken cancellationToken)
         {
             try
             {
@@ -118,8 +118,8 @@ namespace FeynmanTechniqueBackend.Controllers.Base
             }
         }
 
-        [HttpDelete]
-        public async Task<ActionResult<bool>> DeleteAsync(T id, CancellationToken cancellationToken)
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<bool>> DeleteAsync([FromRoute] T id, CancellationToken cancellationToken)
         {
             try
             {
@@ -142,6 +142,38 @@ namespace FeynmanTechniqueBackend.Controllers.Base
                 }
 
                 return await Repository.BulkInsertAsync(entities, cancellationToken);
+            }
+            catch (MySqlException exception)
+            {
+                return HandleError(exception);
+            }
+        }
+
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetAmountOfEntriesAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                return await Repository.GetAmountOfEntriesAsync<E>(cancellationToken);
+            }
+            catch (MySqlException exception)
+            {
+                return HandleError(exception);
+            }
+        }
+        
+        [HttpPost("{column}/get")]
+        public async Task<ActionResult<List<object>>> GetByColumnAsync([FromRoute] string column, CancellationToken cancellationToken)
+        {
+            try
+            {
+                Microsoft.EntityFrameworkCore.Metadata.IProperty? property = Repository.TryGetColumnName<E>(column);
+                if (property == null)
+                {
+                    return NotFound();
+                }
+
+                return await Repository.GetByColumnAsync<E>(property, cancellationToken);
             }
             catch (MySqlException exception)
             {
@@ -184,19 +216,6 @@ namespace FeynmanTechniqueBackend.Controllers.Base
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
             return StatusCode(StatusCodes.Status500InternalServerError);
-        }
-
-        [HttpGet("count")]
-        public async Task<ActionResult<int>> GetAmountOfEntriesAsync(CancellationToken cancellationToken)
-        {
-            try
-            {
-                return await Repository.GetAmountOfEntriesAsync<E>(cancellationToken);
-            }
-            catch (MySqlException exception)
-            {
-                return HandleError(exception);
-            }
         }
 
         protected abstract Expression<Func<E, bool>> PreparePredicate(C criteria);

@@ -1,6 +1,8 @@
 ﻿using FeynmanTechniqueBackend.Models;
 using FeynmanTechniqueBackend.Repository.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Linq.Expressions;
 
@@ -55,7 +57,7 @@ namespace FeynmanTechniqueBackend.Repository
             return foundEntity;
         }
 
-        public async Task<bool> DeleteAsync<E, T>(T id, CancellationToken cancellationToken)
+        public async Task<bool> DeleteAsync<E, T>([FromRoute]T id, CancellationToken cancellationToken)
             where E : class, IEntity<T>
         {
             E? entity = await DbContext.Set<E>().FirstOrDefaultAsync(f => f.Id.Equals(id), cancellationToken: cancellationToken);
@@ -98,6 +100,34 @@ namespace FeynmanTechniqueBackend.Repository
             return await DbContext
                 .Set<E>()
                 .CountAsync(cancellationToken: cancellationToken);
+        }
+
+        public IProperty? TryGetColumnName<E>(string columnName) where E : class
+        {
+            IEntityType? type = DbContext.Model.FindEntityType(typeof(E));
+            if (type == null)
+            {
+                return null;
+            }
+
+            return type.FindProperty(columnName);
+        }
+
+        public async Task<List<object>> GetByColumnAsync<E>(IProperty property, CancellationToken cancellationToken) 
+            where E : class
+        {
+            //TODO: Dodać WHERE, gdzie filtrujemy po zadanej kolumnie
+            return await DbContext.Set<E>()
+                .Select(CreateSelector<E>(property.Name))
+                .ToListAsync(cancellationToken);
+        }
+
+        private static Expression<Func<E, object>> CreateSelector<E>(string propertyName) where E : class
+        {
+            ParameterExpression parameter = Expression.Parameter(typeof(E), "x");
+            MemberExpression property = Expression.Property(parameter, propertyName);
+            UnaryExpression conversion = Expression.Convert(property, typeof(object));
+            return Expression.Lambda<Func<E, object>>(conversion, parameter);
         }
     }
 }
