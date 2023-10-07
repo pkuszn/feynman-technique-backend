@@ -1,7 +1,6 @@
 ﻿using FeynmanTechniqueBackend.Controllers.Criteria;
 using FeynmanTechniqueBackend.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 namespace FeynmanTechniqueBackend.Controllers.Custom
 {
@@ -16,12 +15,10 @@ namespace FeynmanTechniqueBackend.Controllers.Custom
         }
 
         [HttpPost("authenticate")]
-        [ProducesResponseType((int)HttpStatusCode.Created, Type = typeof(bool))]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(string))]
-        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(object))]
-        public async Task<bool> PostAsync(ValidateUserCriteria criteria, CancellationToken cancellationToken)
-        {
-            return await UserManagementService.PostAsync(criteria, cancellationToken);
-        }
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(bool))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(object))]
+        public async Task<bool> PostAsync(ValidateUserCriteria criteria, CancellationToken cancellationToken) 
+            => await UserManagementService.PostAsync(criteria, cancellationToken);
     }
 }

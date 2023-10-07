@@ -8,7 +8,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
     public abstract class BaseEntityReadOnlyController<E, C, T> : ControllerBase
         where E : class, IEntity<T>, new()
     {
-        private readonly IRepositoryAsync Repository;
+        protected readonly IRepositoryAsync Repository;
 
         protected BaseEntityReadOnlyController(IRepositoryAsync repository)
         {
@@ -16,6 +16,8 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<List<E>>> GetAsync([FromBody] C criteria, CancellationToken cancellationToken)
         {
             try
@@ -26,7 +28,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
                 }
 
                 Expression<Func<E, bool>> expression = PreparePredicate(criteria);
-                return await Repository.GetWhereAsync(expression, cancellationToken);
+                return Ok(await Repository.GetWhereAsync(expression, cancellationToken));
             }
             catch (MySqlException exception)
             {
@@ -35,6 +37,8 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         }
 
         [HttpPost("get")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<List<E>>> GetByPostAsync([FromBody] C criteria, CancellationToken cancellationToken)
         {
             try
@@ -45,7 +49,11 @@ namespace FeynmanTechniqueBackend.Controllers.Base
                 }
 
                 Expression<Func<E, bool>> expression = PreparePredicate(criteria);
-                return await Repository.GetWhereAsync(expression, cancellationToken);
+                bool hasLengthLimit = HasLengthLimit(criteria, out int offset, out int partOfSet);
+                List<E> entities = hasLengthLimit
+                    ? await Repository.GetWhereLimitAsync(expression, offset, partOfSet, cancellationToken)
+                    : await Repository.GetWhereAsync(expression, cancellationToken);
+                return (entities?.Count ?? 0) == 0 ? NotFound() : Ok(entities);
             }
             catch (MySqlException exception)
             {
@@ -54,11 +62,13 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         }
 
         [HttpGet("all")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<List<E>>> GetAllAsync(CancellationToken cancellationToken)
         {
             try
             {
-                return await Repository.GetAllAsync<E>(cancellationToken: cancellationToken);
+                return Ok(await Repository.GetAllAsync<E>(cancellationToken));
             }
             catch (MySqlException exception)
             {
@@ -67,12 +77,15 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<E>> GetByIdAsync([FromRoute] T id, CancellationToken cancellationToken)
         {
             try
             {
                 E? entity = await Repository.GetByIdAsync<E, T>(id, cancellationToken);
-                return entity == null ? StatusCode(StatusCodes.Status404NotFound) : entity;
+                return entity == null ? NotFound() : Ok(entity);
             }
             catch (MySqlException exception)
             {
@@ -81,11 +94,14 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         }
 
         [HttpGet("count")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<int>> GetAmountOfEntriesAsync(CancellationToken cancellationToken)
         {
             try
             {
-                return await Repository.GetAmountOfEntriesAsync<E>(cancellationToken);
+                return Ok(await Repository.GetAmountOfEntriesAsync<E>(cancellationToken));
             }
             catch (MySqlException exception)
             {
@@ -94,6 +110,10 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         }
 
         [HttpPost("{column}/get")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<List<object>>> GetByColumnAsync([FromRoute] string column, CancellationToken cancellationToken)
         {
             try
@@ -101,18 +121,19 @@ namespace FeynmanTechniqueBackend.Controllers.Base
                 Microsoft.EntityFrameworkCore.Metadata.IProperty? property = Repository.TryGetColumnName<E>(column);
                 if (property == null)
                 {
-                    return NotFound();
+                    return BadRequest();
                 }
 
-                return await Repository.GetByColumnAsync<E>(property, cancellationToken);
+                List<object> entities = await Repository.GetByColumnAsync<E>(property, cancellationToken);
+                return (entities?.Count ?? 0) == 0 ? NotFound() : Ok(entities);
             }
-            catch(MySqlException exception)
+            catch (MySqlException exception)
             {
                 return HandleError(exception);
             }
         }
 
-        protected StatusCodeResult HandleError(MySqlException exception)
+        private StatusCodeResult HandleError(MySqlException exception)
         {
             if (MySqlErrorCode.AccessDenied.Equals(exception.SqlState))
             {

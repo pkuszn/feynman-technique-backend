@@ -1,4 +1,3 @@
-using System.Net;
 using FeynmanTechniqueBackend.Controllers.Criteria;
 using FeynmanTechniqueBackend.Models;
 using FeynmanTechniqueBackend.Services.Interfaces;
@@ -17,13 +16,11 @@ namespace FeynmanTechniqueBackend.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType((int)HttpStatusCode.Created, Type = typeof(bool))]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(string))]
-        [ProducesResponseType((int)HttpStatusCode.InternalServerError, Type = typeof(object))]
-        public async Task<List<Word>> PostAsync(ScrapCriteria criteria, CancellationToken cancellationToken)
-        {
-            return await LinguisticCorpusFillmentService.PostAsync(criteria, cancellationToken);
-        }
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(List<Word>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(object))]
+        public async Task<List<Word>> PostAsync(ScrapCriteria criteria, CancellationToken cancellationToken) 
+            => await LinguisticCorpusFillmentService.PostAsync(criteria, cancellationToken);
     }
 }
 

@@ -1,88 +1,18 @@
-using System.Linq.Expressions;
 using FeynmanTechniqueBackend.Repository.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using MySqlConnector;
 
 namespace FeynmanTechniqueBackend.Controllers.Base
 {
-    public abstract class BaseEntityController<E, C, T> : ControllerBase
+    public abstract class BaseEntityController<E, C, T> : BaseEntityReadOnlyController<E, C, T>
         where E : class, IEntity<T>, new()
     {
-        public IRepositoryAsync Repository { get; }
-        protected BaseEntityController(IRepositoryAsync repository)
-        {
-            Repository = repository ?? throw new ArgumentNullException(nameof(repository));
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<List<E>>> GetAsync([FromBody] C criteria, CancellationToken cancellationToken)
-        {
-            try
-            {
-                if (criteria == null)
-                {
-                    return new List<E>();
-                }
-
-                Expression<Func<E, bool>> expression = PreparePredicate(criteria);
-                return await Repository.GetWhereAsync(expression, cancellationToken);
-            }
-            catch (MySqlException exception)
-            {
-                return HandleError(exception);
-            }
-        }
-
-        [HttpPost("get")]
-        public async Task<ActionResult<List<E>>> GetByPostAsync([FromBody] C criteria, CancellationToken cancellationToken)
-        {
-            try
-            {
-                if (criteria == null)
-                {
-                    return new List<E>();
-                }
-
-                Expression<Func<E, bool>> expression = PreparePredicate(criteria);
-                bool hasLengthLimit = HasLengthLimit(criteria, out int offset, out int partOfSet);
-                return hasLengthLimit 
-                    ? await Repository.GetWhereLimitAsync(expression, offset, partOfSet, cancellationToken) 
-                    : await Repository.GetWhereAsync(expression, cancellationToken);
-            }
-            catch (MySqlException exception)
-            {
-                return HandleError(exception);
-            }
-        }
-
-        [HttpGet("all")]
-        public async Task<ActionResult<List<E>>> GetAllAsync(CancellationToken cancellationToken)
-        {
-            try
-            {
-                return await Repository.GetAllAsync<E>(cancellationToken);
-            }
-            catch (MySqlException exception)
-            {
-                return HandleError(exception);
-            }
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<E>> GetByIdAsync([FromRoute] T id, CancellationToken cancellationToken)
-        {
-            try
-            {
-                E? entity = await Repository.GetByIdAsync<E, T>(id, cancellationToken);
-                return entity == null ? StatusCode(StatusCodes.Status404NotFound) : entity;
-            }
-            catch (MySqlException exception)
-            {
-                return HandleError(exception);
-            }
-        }
+        protected BaseEntityController(IRepositoryAsync repository) : base(repository) { }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<E>> PostAsync([FromBody] E entity, CancellationToken cancellationToken)
         {
             try
@@ -92,7 +22,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
                     return BadRequest();
                 }
 
-                return await Repository.PostAsync(entity, cancellationToken);
+                return CreatedAtAction(nameof(PostAsync), await Repository.PostAsync(entity, cancellationToken));
             }
             catch (MySqlException exception)
             {
@@ -101,16 +31,19 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         }
 
         [HttpPut]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<E>> PutAsync([FromBody] E entity, CancellationToken cancellationToken)
         {
             try
             {
                 if (entity == null)
                 {
-                    return BadRequest();
+                    return NoContent();
                 }
 
-                return await Repository.PutAsync<E, T>(entity, cancellationToken);
+                return Ok(await Repository.PutAsync<E, T>(entity, cancellationToken));
             }
             catch (MySqlException exception)
             {
@@ -119,11 +52,14 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<bool>> DeleteAsync([FromRoute] T id, CancellationToken cancellationToken)
         {
             try
             {
-                return await Repository.DeleteAsync<E, T>(id, cancellationToken);
+                return Ok(await Repository.DeleteAsync<E, T>(id, cancellationToken));
             }
             catch (MySqlException exception)
             {
@@ -132,6 +68,9 @@ namespace FeynmanTechniqueBackend.Controllers.Base
         }
 
         [HttpPost("bulk")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<List<E>>> BulkInsert([FromBody] IEnumerable<E> entities, CancellationToken cancellationToken)
         {
             try
@@ -141,7 +80,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
                     return new List<E>();
                 }
 
-                return await Repository.BulkInsertAsync(entities, cancellationToken);
+                return CreatedAtAction(nameof(BulkInsert), await Repository.BulkInsertAsync(entities, cancellationToken));
             }
             catch (MySqlException exception)
             {
@@ -149,39 +88,7 @@ namespace FeynmanTechniqueBackend.Controllers.Base
             }
         }
 
-        [HttpGet("count")]
-        public async Task<ActionResult<int>> GetAmountOfEntriesAsync(CancellationToken cancellationToken)
-        {
-            try
-            {
-                return await Repository.GetAmountOfEntriesAsync<E>(cancellationToken);
-            }
-            catch (MySqlException exception)
-            {
-                return HandleError(exception);
-            }
-        }
-        
-        [HttpPost("{column}/get")]
-        public async Task<ActionResult<List<object>>> GetByColumnAsync([FromRoute] string column, CancellationToken cancellationToken)
-        {
-            try
-            {
-                Microsoft.EntityFrameworkCore.Metadata.IProperty? property = Repository.TryGetColumnName<E>(column);
-                if (property == null)
-                {
-                    return NotFound();
-                }
-
-                return await Repository.GetByColumnAsync<E>(property, cancellationToken);
-            }
-            catch (MySqlException exception)
-            {
-                return HandleError(exception);
-            }
-        }
-
-        protected StatusCodeResult HandleError(MySqlException exception)
+        private StatusCodeResult HandleError(MySqlException exception)
         {
             if (MySqlErrorCode.AccessDenied.Equals(exception.SqlState))
             {
@@ -217,8 +124,5 @@ namespace FeynmanTechniqueBackend.Controllers.Base
             }
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
-
-        protected abstract Expression<Func<E, bool>> PreparePredicate(C criteria);
-        protected abstract bool HasLengthLimit(C criteria, out int offset, out int partOfSet);
     }
 }
