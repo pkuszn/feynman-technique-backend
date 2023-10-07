@@ -10,6 +10,7 @@ namespace FeynmanTechniqueBackend.Constants
         public class FeynmanTechniqueCoreUrl
         {
             public const string AnalyzeSpeeches = "analyze/speeches";
+            public const string AnalyzeSpeechesText = "analyze/speeches/text";
         }
     }
 }

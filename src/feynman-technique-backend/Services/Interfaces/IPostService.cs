@@ -5,4 +5,8 @@
     {
         Task<TResult> PostAsync(TCriteria criteria, CancellationToken cancellationToken);
     }
+
+    //TODO: Interfejsy
 }
+
+

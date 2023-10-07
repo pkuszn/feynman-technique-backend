@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace FeynmanTechniqueBackend.HttpModels.Models
 {
-    public class DetailedWordDtoKey
+    public class TokenResponse
     {
         public string? Name { get; set; }
         public string? Lemma { get; set; }

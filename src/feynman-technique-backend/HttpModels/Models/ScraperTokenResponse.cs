@@ -1,8 +1,8 @@
 ﻿namespace FeynmanTechniqueBackend.HttpModels.Models
 {
-    public class DetailedWordResponse
+    public class ScraperTokenResponse
     {
         public string? Source { get; set; }
-        public List<DetailedWordDtoKey> Words { get; set; } = new();
+        public List<TokenResponse> Words { get; set; } = new();
     }
 }
