@@ -1,7 +1,6 @@
-namespace FeynmanTechniqueBackend.HttpModels.Models
+namespace FeynmanTechniqueBackend.HttpModels.Models;
+
+public class ScrapServiceDto
 {
-    public class ScrapServiceDto
-    {
-        public HashSet<string> Words { get; set; } = new();
-    }
+    public HashSet<string> Words { get; set; } = [];
 }

@@ -6,62 +6,60 @@ using FeynmanTechniqueBackend.Models;
 using FeynmanTechniqueBackend.Repository.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FeynmanTechniqueBackend.Controllers
+namespace FeynmanTechniqueBackend.Controllers.FtBackend;
+[ApiController]
+[Route("[controller]")]
+public class UserController : BaseEntityController<User, UserCriteria, int>
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class UserController : BaseEntityController<User, UserCriteria, int>
+    private readonly ILogger<UserController> Logger;
+    public UserController(ILogger<UserController> logger, IRepositoryAsync repository) 
+        : base(repository)
     {
-        private readonly ILogger<UserController> Logger;
-        public UserController(ILogger<UserController> logger, IRepositoryAsync repository) 
-            : base(repository)
+        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
+    protected override bool HasLengthLimit(UserCriteria criteria, out int offset, out int partOfSet)
+    {
+        offset = 0;
+        partOfSet = 0;
+        return false;
+    }
+
+    protected override Expression<Func<User, bool>> PreparePredicate(UserCriteria criteria)
+    {
+        if (criteria is null)
         {
-            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            Logger.LogError("Get {entity} failed. {criteria} is null or empty.", nameof(User), nameof(UserCriteria));
+            return null!;
         }
 
-        protected override bool HasLengthLimit(UserCriteria criteria, out int offset, out int partOfSet)
+        Expression<Func<User, bool>> expr = f => true;
+
+        if (criteria.IdUser > 0)
         {
-            offset = 0;
-            partOfSet = 0;
-            return false;
+            expr = expr.And(a => a.Id == criteria.IdUser);
         }
 
-        protected override Expression<Func<User, bool>> PreparePredicate(UserCriteria criteria)
+        if (!string.IsNullOrEmpty(criteria.Name))
         {
-            if (criteria is null)
-            {
-                Logger.LogError("Get {entity} failed. {criteria} is null or empty.", nameof(User), nameof(UserCriteria));
-                return null;
-            }
-
-            Expression<Func<User, bool>> expr = f => true;
-
-            if (criteria.IdUser > 0)
-            {
-                expr = expr.And(a => a.Id == criteria.IdUser);
-            }
-
-            if (!string.IsNullOrEmpty(criteria.Name))
-            {
-                expr = expr.And(a => a.Name.Equals(criteria.Name));
-            }
-
-            if (!string.IsNullOrEmpty(criteria.Password))
-            {
-                expr = expr.And(a => a.Password.Equals(criteria.Password));
-            }
-
-            if (criteria.Role > 0)
-            {
-                expr = expr.And(a => a.Role == criteria.Role);
-            }
-
-            if (criteria.CreatedDate > DateTime.MinValue)
-            {
-                expr = expr.And(a => a.CreatedDate == criteria.CreatedDate);
-            }
-
-            return expr;
+            expr = expr.And(a => a.Name.Equals(criteria.Name));
         }
+
+        if (!string.IsNullOrEmpty(criteria.Password))
+        {
+            expr = expr.And(a => a.Password.Equals(criteria.Password));
+        }
+
+        if (criteria.Role > 0)
+        {
+            expr = expr.And(a => a.Role == criteria.Role);
+        }
+
+        if (criteria.CreatedDate > DateTime.MinValue)
+        {
+            expr = expr.And(a => a.CreatedDate == criteria.CreatedDate);
+        }
+
+        return expr;
     }
 }

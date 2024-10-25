@@ -2,27 +2,24 @@ using FeynmanTechniqueBackend.Models;
 using FeynmanTechniqueBackend.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace FeynmanTechniqueBackend.Services
+namespace FeynmanTechniqueBackend.Services;
+
+public class ServiceUtilitiesService : IServiceUtilitiesService
 {
-    public class ServiceUtilitiesService : IServiceUtilitiesService
+    private readonly FeynmanTechniqueCorpusContext DbContext;
+
+    public ServiceUtilitiesService(FeynmanTechniqueCorpusContext dbContext)
     {
-        private readonly ILogger<ServiceUtilitiesService> Logger;
-        private readonly FeynmanTechniqueCorpusContext DbContext;
+        DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+    }
 
-        public ServiceUtilitiesService(ILogger<ServiceUtilitiesService> logger, FeynmanTechniqueCorpusContext dbContext)
-        {
-            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        }
+    public async Task<bool> GetAsync(CancellationToken cancellationToken)
+    {
+        return await ExecuteStoredProcedureAsync(cancellationToken);
+    }
 
-        public async Task<bool> GetAsync(CancellationToken cancellationToken)
-        {
-            return await ExecuteStoredProcedureAsync(cancellationToken);
-        }
-
-        private async Task<bool> ExecuteStoredProcedureAsync(CancellationToken cancellationToken)
-        {
-            return await DbContext.Database.ExecuteSqlInterpolatedAsync($"call `remove_duplicates`", cancellationToken: cancellationToken) > 0;
-        }
+    private async Task<bool> ExecuteStoredProcedureAsync(CancellationToken cancellationToken)
+    {
+        return await DbContext.Database.ExecuteSqlInterpolatedAsync($"call `remove_duplicates`", cancellationToken: cancellationToken) > 0;
     }
 }

@@ -1,5 +1,4 @@
-namespace FeynmanTechniqueBackend.Services.Interfaces
-{
-    public interface ICriteria { }
-}
+namespace FeynmanTechniqueBackend.Services.Interfaces;
+
+public interface ICriteria { }
 

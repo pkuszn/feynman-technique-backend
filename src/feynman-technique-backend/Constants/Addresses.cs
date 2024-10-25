@@ -1,16 +1,15 @@
-namespace FeynmanTechniqueBackend.Constants
-{
-    public static class Addresses
-    {
-        public class FeynmanTechniqueScraperUrl
-        {
-            public const string Many = "scrap/many";
+namespace FeynmanTechniqueBackend.Constants;
 
-        }
-        public class FeynmanTechniqueCoreUrl
-        {
-            public const string AnalyzeSpeeches = "analyze/speeches";
-            public const string AnalyzeSpeechesText = "analyze/speeches/text";
-        }
+public static class Addresses
+{
+    public class FeynmanTechniqueScraperUrl
+    {
+        public const string Many = "scrap/many";
+
+    }
+    public class FeynmanTechniqueCoreUrl
+    {
+        public const string AnalyzeSpeeches = "analyze/speeches";
+        public const string AnalyzeSpeechesText = "analyze/speeches/text";
     }
 }

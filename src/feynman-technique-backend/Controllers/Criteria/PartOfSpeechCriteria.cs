@@ -1,8 +1,7 @@
-namespace FeynmanTechniqueBackend.Controllers.Criteria
+namespace FeynmanTechniqueBackend.Controllers.Criteria;
+
+public class PartOfSpeechCriteria
 {
-    public class PartOfSpeechCriteria
-    {
-        public int IdPartOfSpeech { get; set; }
-        public string Name { get; set; }
-    }
+    public int IdPartOfSpeech { get; set; }
+    public string Name { get; set; } = null!;
 }

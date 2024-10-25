@@ -1,4 +1,3 @@
-﻿namespace FeynmanTechniqueBackend.Validators.Interfaces
-{
-    public interface IValidator<TCriteria> { }
-}
+﻿namespace FeynmanTechniqueBackend.Validators.Interfaces;
+
+public interface IValidator<TCriteria> { }

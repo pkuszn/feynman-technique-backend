@@ -6,47 +6,46 @@ using Microsoft.AspNetCore.Mvc;
 using FeynmanTechniqueBackend.Extensions;
 using FeynmanTechniqueBackend.Repository.Interfaces;
 
-namespace FeynmanTechniqueBackend.Controllers
+namespace FeynmanTechniqueBackend.Controllers.FtBackend;
+
+[ApiController]
+[Route("[controller]")]
+public class PartOfSpeechController : BaseEntityReadOnlyController<PartOfSpeech, PartOfSpeechCriteria, int>
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class PartOfSpeechController : BaseEntityReadOnlyController<PartOfSpeech, PartOfSpeechCriteria, int>
+    private readonly ILogger<PartOfSpeechController> Logger;
+    public PartOfSpeechController(ILogger<PartOfSpeechController> logger, IRepositoryAsync repository)
+        : base(repository)
     {
-        private readonly ILogger<PartOfSpeechController> Logger;
-        public PartOfSpeechController(ILogger<PartOfSpeechController> logger, IRepositoryAsync repository)
-            : base(repository)
+        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
+    protected override bool HasLengthLimit(PartOfSpeechCriteria criteria, out int offset, out int partOfSet)
+    {
+        offset = 0;
+        partOfSet = 0;
+        return false;
+    }
+
+    protected override Expression<Func<PartOfSpeech, bool>> PreparePredicate(PartOfSpeechCriteria criteria)
+    {
+        if (criteria is null)
         {
-            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            Logger.LogError("Get {entity} failed. {criteria} is null or empty.", nameof(PartOfSpeech), nameof(PartOfSpeechCriteria));
+            return null!;
         }
 
-        protected override bool HasLengthLimit(PartOfSpeechCriteria criteria, out int offset, out int partOfSet)
+        Expression<Func<PartOfSpeech, bool>> expr = f => true;
+
+        if (criteria.IdPartOfSpeech > 0)
         {
-            offset = 0;
-            partOfSet = 0;
-            return false;
+            expr = expr.And(a => a.Id == criteria.IdPartOfSpeech);
         }
 
-        protected override Expression<Func<PartOfSpeech, bool>> PreparePredicate(PartOfSpeechCriteria criteria)
+        if (!string.IsNullOrEmpty(criteria.Name))
         {
-            if (criteria is null)
-            {
-                Logger.LogError("Get {entity} failed. {criteria} is null or empty.", nameof(PartOfSpeech), nameof(PartOfSpeechCriteria));
-                return null;
-            }
-
-            Expression<Func<PartOfSpeech, bool>> expr = f => true;
-
-            if (criteria.IdPartOfSpeech > 0)
-            {
-                expr = expr.And(a => a.Id == criteria.IdPartOfSpeech);
-            }
-
-            if (!string.IsNullOrEmpty(criteria.Name))
-            {
-                expr = expr.And(a => a.Name.Equals(criteria.Name)); 
-            }
-
-            return expr;
+            expr = expr.And(a => a.Name.Equals(criteria.Name)); 
         }
+
+        return expr;
     }
 }

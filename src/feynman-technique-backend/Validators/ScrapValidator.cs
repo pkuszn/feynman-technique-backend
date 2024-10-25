@@ -1,14 +1,13 @@
 ﻿using FeynmanTechniqueBackend.Controllers.Criteria;
 using FluentValidation;
 
-namespace FeynmanTechniqueBackend.Validators
+namespace FeynmanTechniqueBackend.Validators;
+
+public class ScrapValidator : AbstractValidator<ScrapCriteria>
 {
-    public class ScrapValidator : AbstractValidator<ScrapCriteria>
+    public ScrapValidator()
     {
-        public ScrapValidator()
-        {
-            RuleFor(r => r.Links)
-                .NotEmpty();
-        }
+        RuleFor(r => r.Links)
+            .NotEmpty();
     }
 }

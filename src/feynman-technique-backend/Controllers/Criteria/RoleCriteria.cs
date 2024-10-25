@@ -1,8 +1,7 @@
-namespace FeynmanTechniqueBackend.Controllers.Criteria
+namespace FeynmanTechniqueBackend.Controllers.Criteria;
+
+public class RoleCriteria
 {
-    public class RoleCriteria
-    {
-        public int IdRole { get; set; }
-        public string Name { get; set; }
-    }
+    public int IdRole { get; set; }
+    public string Name { get; set; } = null!;
 }
